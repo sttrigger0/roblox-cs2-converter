@@ -1,11 +1,39 @@
-<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:generic:version{7412167c-06e9-4698-aff2-e63eb59037e7} -->
-{
-    shader = "csgo_unlitgeneric.vfx"
-    F_PAINT_VERTEX_COLORS = 1
-    F_TRANSLUCENT = 0
-    F_BLEND_MODE = 0
+// THIS FILE IS AUTO-GENERATED
 
-    g_vColorTint = [1, 1, 1, 1]
-    TextureColor = resource:"materials/roblox_generated/textures/plastic.vtex"
-    g_tColor = resource:"materials/roblox_generated/textures/plastic.vtex"
+Layer0
+{
+	shader "csgo_unlitgeneric.vfx"
+
+	//---- Color ----
+	g_flModelTintAmount "1.000"
+	g_flTexCoordRotation "0.000"
+	g_nScaleTexCoordUByModelScaleAxis "0" // None
+	g_nScaleTexCoordVByModelScaleAxis "0" // None
+	g_vColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	g_vTexCoordCenter "[0.500 0.500]"
+	g_vTexCoordOffset "[0.000 0.000]"
+	g_vTexCoordScale "[1.000 1.000]"
+	g_vTexCoordScrollSpeed "[0.000 0.000]"
+	TextureColor "materials/roblox_generated/textures/plastic.vtex"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Texture Address Mode ----
+	g_nTextureAddressModeU "0" // Wrap
+	g_nTextureAddressModeV "0" // Wrap
+
+
+	VariableState
+	{
+		"Color"
+		{
+		}
+		"Fog"
+		{
+		}
+		"Texture Address Mode"
+		{
+		}
+	}
 }
