@@ -115,26 +115,3 @@ Portable app behavior:
 2. `srctools` binary export fallback
 
 If you need consistent schema normalization, keep `tools/vmap_bin9_converter` build artifacts available.
-
-## Repository Layout
-- `roblox_to_vmap.py`: main CS2 converter
-- `roblox_to_vmf.py`: shared parsing/math helpers
-- `ui/windows_portable/`: UI launcher source
-- `scripts/build_windows_portable.sh`: builds portable Windows zip
-- `tools/vmap_bin9_converter/`: optional Binary9 normalization tool
-- `materials/roblox_generated/`: editable base material library
-
-## Publishing / GitHub
-
-Initialize and push:
-```bash
-git init
-git add .
-git commit -m "Initial Roblox->CS2 converter (CLI + UI)"
-git branch -M main
-git remote add origin https://github.com/<you>/<repo>.git
-git push -u origin main
-```
-
-If you use releases for the portable app, upload:
-- `dist/RobloxCS2MapConverter_windows_portable.zip`
