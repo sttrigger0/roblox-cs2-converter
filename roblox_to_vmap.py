@@ -232,16 +232,112 @@ VTEX_TEMPLATE = """<!-- dmx encoding keyvalues2_noids 1 format vtex 1 -->
 }
 """
 
-VMAT_TEMPLATE = """<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:generic:version{7412167c-06e9-4698-aff2-e63eb59037e7} -->
+VTEX_NORMAL_TEMPLATE = """<!-- dmx encoding keyvalues2_noids 1 format vtex 1 -->
+"CDmeVtex"
 {
-    shader = "csgo_unlitgeneric.vfx"
-    F_PAINT_VERTEX_COLORS = 1
-    F_TRANSLUCENT = 0
-    F_BLEND_MODE = 0
+    "m_inputTextureArray" "element_array"
+    [
+        "CDmeInputTexture"
+        {
+            "m_name" "string" "InputTexture0"
+            "m_fileName" "string" "__FILE_NAME__"
+            "m_colorSpace" "string" "linear"
+            "m_typeString" "string" "2D"
+            "m_imageProcessorArray" "element_array"
+            [
+                "CDmeImageProcessor"
+                {
+                    "m_algorithm" "string" "None"
+                    "m_stringArg" "string" ""
+                    "m_vFloat4Arg" "vector4" "0 0 0 0"
+                }
+            ]
+        }
+    ]
+    "m_outputTypeString" "string" "2D"
+    "m_outputFormat" "string" "DXT5"
+    "m_outputClearColor" "vector4" "0.5 0.5 1 1"
+    "m_nOutputMinDimension" "int" "0"
+    "m_nOutputMaxDimension" "int" "0"
+    "m_textureOutputChannelArray" "element_array"
+    [
+        "CDmeTextureOutputChannel"
+        {
+            "m_inputTextureArray" "string_array" [ "InputTexture0" ]
+            "m_srcChannels" "string" "rgba"
+            "m_dstChannels" "string" "rgba"
+            "m_mipAlgorithm" "CDmeImageProcessor"
+            {
+                "m_algorithm" "string" "Box"
+                "m_stringArg" "string" ""
+                "m_vFloat4Arg" "vector4" "0 0 0 0"
+            }
+            "m_outputColorSpace" "string" "linear"
+        }
+    ]
+    "m_vClamp" "vector3" "0 0 0"
+    "m_bNoLod" "bool" "0"
+}
+"""
 
-    g_vColorTint = [1, 1, 1, 1]
-    TextureColor = resource:"__COLOR_VTEX_RESOURCE__"
-    g_tColor = resource:"__COLOR_VTEX_RESOURCE__"
+VMAT_TEMPLATE = """// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "csgo_environment.vfx"
+
+	//---- Color ----
+	g_flModelTintAmount "1.000"
+	g_nScaleTexCoordUByModelScaleAxis "0" // None
+	g_nScaleTexCoordVByModelScaleAxis "0" // None
+	g_vColorTint "[1.000000 1.000000 1.000000 0.000000]"
+
+	//---- Fog ----
+	g_bFogEnabled "1"
+
+	//---- Material1 ----
+	g_bSnowLayer1 "0"
+	g_flTexCoordRotation1 "0.000"
+	g_flWetnessDarkeningStrength1 "1.000"
+	g_nUVSet1 "1" // UV1
+	g_vTexCoordCenter1 "[0.500 0.500]"
+	g_vTexCoordOffset1 "[0.000 0.000]"
+	g_vTexCoordScale1 "[1.000 1.000]"
+	TextureAmbientOcclusion1 ""
+	TextureColor1 "__COLOR_VTEX__"
+	TextureHeight1 ""
+	TextureMetalness1 ""
+	TextureNormal1 "__NORMAL_VTEX__"
+	TextureRoughness1 ""
+	TextureTintMask1 ""
+
+	//---- Texture Address Mode ----
+	g_nTextureAddressModeU "0" // Wrap
+	g_nTextureAddressModeV "0" // Wrap
+
+
+	VariableState
+	{
+		"Color"
+		{
+		}
+		"Fog"
+		{
+		}
+		"Material1"
+		{
+			"Color" 0
+			"Tint Mask" 0
+			"Lighting" 0
+			"Height" 0
+			"Texture Coordinates" 0
+			"Texture Transform" 1
+			"Snow" 0
+		}
+		"Texture Address Mode"
+		{
+		}
+	}
 }
 """
 
@@ -387,6 +483,30 @@ def normalize_texture_png(src_png: Path, dst_png: Path) -> None:
     shutil.copyfile(src_png, dst_png)
 
 
+def resolve_roblox_normal_file(
+    material_name: str,
+    texture_source_dir: Optional[Path],
+    modern_index: Dict[str, str],
+) -> Optional[Path]:
+    if not texture_source_dir or not texture_source_dir.is_dir():
+        return None
+
+    candidates = [str(material_name or "").strip(), canonical_roblox_material_name(material_name)]
+    seen = set()
+    for candidate_name in candidates:
+        key = normalize_material_lookup_key(candidate_name)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        real_dir_name = modern_index.get(key)
+        if not real_dir_name:
+            continue
+        normal = texture_source_dir / real_dir_name / "normal.png"
+        if normal.is_file():
+            return normal
+    return None
+
+
 def create_placeholder_texture_png(dst_png: Path, size: int = 64) -> None:
     if Image is None:
         # Minimal hard fail-safe: copy an existing generated texture if available.
@@ -479,6 +599,8 @@ def emit_roblox_custom_material_pack(
         slug = custom_material_slug(material_name)
         png_out = textures_root / f"{slug}.png"
         vtex_out = textures_root / f"{slug}.vtex"
+        normal_png_out = textures_root / f"{slug}_normal.png"
+        normal_vtex_out = textures_root / f"{slug}_normal.vtex"
         vmat_out = materials_root / f"{slug}.vmat"
 
         canonical_name = canonical_roblox_material_name(material_name)
@@ -491,6 +613,7 @@ def emit_roblox_custom_material_pack(
             normal_src = texture_source_dir / canonical_dir / "normal.png"
 
         src_png = resolve_roblox_texture_file(material_name, texture_source_dir, modern_index)
+        src_normal_png = resolve_roblox_normal_file(material_name, texture_source_dir, modern_index)
         if src_png and src_png.is_file():
             normalize_texture_png(src_png, png_out)
         else:
@@ -508,9 +631,21 @@ def emit_roblox_custom_material_pack(
 
         texture_file_name = f"materials/roblox_generated/textures/{slug}.png"
         vtex_out.write_text(VTEX_TEMPLATE.replace("__FILE_NAME__", texture_file_name), encoding="utf-8")
+        normal_vtex_resource = ""
+        if src_normal_png and src_normal_png.is_file():
+            normalize_texture_png(src_normal_png, normal_png_out)
+            normal_texture_file_name = f"materials/roblox_generated/textures/{slug}_normal.png"
+            normal_vtex_out.write_text(
+                VTEX_NORMAL_TEMPLATE.replace("__FILE_NAME__", normal_texture_file_name),
+                encoding="utf-8",
+            )
+            normal_vtex_resource = f"materials/roblox_generated/textures/{slug}_normal.vtex"
 
         color_vtex_resource = f"materials/roblox_generated/textures/{slug}.vtex"
-        vmat_out.write_text(VMAT_TEMPLATE.replace("__COLOR_VTEX_RESOURCE__", color_vtex_resource), encoding="utf-8")
+        vmat_out.write_text(
+            VMAT_TEMPLATE.replace("__COLOR_VTEX__", color_vtex_resource).replace("__NORMAL_VTEX__", normal_vtex_resource),
+            encoding="utf-8",
+        )
 
     readme = pack_root / "README.txt"
     readme.write_text(
@@ -531,16 +666,6 @@ def emit_roblox_custom_material_pack(
         ),
         encoding="utf-8",
     )
-
-    # Compile-stability aliases for known-problematic materials in some CS2 toolchains.
-    # Keep VMAP-facing names intact, but redirect to known-good color textures.
-    for alias_slug, target_slug in (("smoothplastic", "plastic"), ("woodplanks", "wood")):
-        alias_vmat = materials_root / f"{alias_slug}.vmat"
-        target_vtex_resource = f"materials/roblox_generated/textures/{target_slug}.vtex"
-        alias_vmat.write_text(
-            VMAT_TEMPLATE.replace("__COLOR_VTEX_RESOURCE__", target_vtex_resource),
-            encoding="utf-8",
-        )
 
     return pack_root
 
