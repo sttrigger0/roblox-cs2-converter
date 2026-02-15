@@ -1,4 +1,4 @@
-# Roblox -> CS2 Map Converter
+# Roblox -> CS2/Source2 Map Converter
 
 Convert Roblox maps (`.rbxm` or JSON snapshots/part lists) into Source 2 `.vmap` files for CS2 Workshop Tools.
 
