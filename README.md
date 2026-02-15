@@ -8,6 +8,32 @@ This repository includes:
 - Optional Binary9 normalizer (`tools/vmap_bin9_converter/`)
 - Editable Roblox material library (`materials/roblox_generated/`)
 
+## Quick Usage (Windows UI / Portable)
+
+The UI source is in `ui/windows_portable/`.
+
+To build a portable app zip from Linux:
+```bash
+./scripts/build_windows_portable.sh
+```
+
+It generates:
+- `dist/RobloxCS2MapConverter_windows_portable.zip`
+
+Portable app behavior:
+- You choose RBXM input + CS2 addon content directory
+- It runs conversion with the project defaults
+- It copies map files into `<addon>/maps`
+- It copies local editable materials from app folder into `<addon>/materials/roblox_generated`
+
+## Post-Conversion Workflow (Hammer)
+1. Open the generated map in Hammer.
+2. Add both gameplay spawns manually:
+- `info_player_counterterrorist`
+- `info_player_terrorist`
+3. Build the map (can take a long time on large Roblox maps).
+4. If textures still appear missing/wrong: open each material in Material Manager once and press `Ctrl+S` so Hammer re-registers it.
+
 ## Quick Usage (CLI)
 
 ### Linux
@@ -45,32 +71,6 @@ py -3 roblox_to_vmap.py --input C:\path\map.rbxm --input-format auto --output-di
 Output files:
 - `*_cs2_textured.vmap`
 - `*_cs2_notexture.vmap`
-
-## Quick Usage (Windows UI / Portable)
-
-The UI source is in `ui/windows_portable/`.
-
-To build a portable app zip from Linux:
-```bash
-./scripts/build_windows_portable.sh
-```
-
-It generates:
-- `dist/RobloxCS2MapConverter_windows_portable.zip`
-
-Portable app behavior:
-- You choose RBXM input + CS2 addon content directory
-- It runs conversion with the project defaults
-- It copies map files into `<addon>/maps`
-- It copies local editable materials from app folder into `<addon>/materials/roblox_generated`
-
-## Post-Conversion Workflow (Hammer)
-1. Open the generated map in Hammer.
-2. Add both gameplay spawns manually:
-- `info_player_counterterrorist`
-- `info_player_terrorist`
-3. Build the map (can take a long time on large Roblox maps).
-4. If textures still appear missing/wrong: open each material in Material Manager once and press `Ctrl+S` so Hammer re-registers it.
 
 ## Main CLI Parameters
 
