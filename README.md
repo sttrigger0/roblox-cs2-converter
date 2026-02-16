@@ -1,6 +1,8 @@
 # Roblox -> CS2/Source2 Map Converter
 
 Convert Roblox maps (`.rbxm` or JSON snapshots/part lists) into Source 2 `.vmap` files for CS2 Workshop Tools.
+### Converted Jujutsu Shenanigans map:
+[![Project Demo](https://img.youtube.com/vi/-u6NWw6Wqvc/0.jpg)](https://www.youtube.com/watch?v=-u6NWw6Wqvc)
 
 This repository includes:
 - Command-line converter (`roblox_to_vmap.py`)
